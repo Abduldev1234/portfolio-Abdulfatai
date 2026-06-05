@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f4f6f9;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.box{
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+width:320px;
+text-align:center;
+}
+
+h2{
+margin-bottom:15px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ddd;
+border-radius:6px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#28a745;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#218838;
+}
+
+#error{
+color:red;
+font-size:14px;
+margin-top:10px;
+min-height:20px;
+}
+
+a{
+display:block;
+margin-top:10px;
+font-size:14px;
+text-decoration:none;
+color:#007bff;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Login</h2>
+
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<div id="error"></div>
+
+<a href="signup.html">Create account</a>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhwjHPjfz6zMMkHNyqv46k-xLapc-LKCw",
+    authDomain: "simple-ecommerce-ea3fa.firebaseapp.com",
+    projectId: "simple-ecommerce-ea3fa",
+    storageBucket: "simple-ecommerce-ea3fa.firebasestorage.app",
+    messagingSenderId: "592418636844",
+    appId: "1:592418636844:web:2d07b376340ddfb0097d89"
+  };
+  
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = async function(){
+
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value.trim();
+const errorBox = document.getElementById("error");
+
+errorBox.innerText = "";
+
+if(!email || !password){
+errorBox.innerText = "Please fill all fields";
+return;
+}
+
+try{
+
+await signInWithEmailAndPassword(auth,email,password);
+
+window.location.href = "index.html";
+
+}catch(error){
+
+console.log(error.code);
+
+if(error.code === "auth/invalid-credential"){
+errorBox.innerText = "Wrong email or password";
+}
+else if(error.code === "auth/user-not-found"){
+errorBox.innerText = "User not found. Please sign up";
+}
+else if(error.code === "auth/wrong-password"){
+errorBox.innerText = "Incorrect password";
+}
+else{
+errorBox.innerText = error.message;
+}
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
