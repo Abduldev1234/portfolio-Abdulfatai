@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ShopEase</title>
 
 <style>
@@ -17,6 +18,7 @@ background:#007bff;
 color:white;
 padding:15px;
 display:flex;
+flex-wrap:wrap;
 justify-content:space-between;
 align-items:center;
 }
@@ -73,7 +75,12 @@ color:white;
 text-decoration:none;
 }
 .sign{
-  margin-left: 1000px;
+  margin-left:0;
+}
+
+@media (max-width:600px){
+  header{flex-direction:column;align-items:flex-start}
+  .card img{height:auto}
 }
 </style>
 </head>
