@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkout</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f4f6f9;
+margin:0;
+}
+
+.container{
+max-width:600px;
+margin:30px auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+}
+
+.item{
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+
+.total{
+font-size:20px;
+font-weight:bold;
+text-align:right;
+margin-top:10px;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:20px;
+background:#28a745;
+color:white;
+border:none;
+font-size:18px;
+border-radius:8px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Checkout</h2>
+
+<div id="items"></div>
+
+<div class="total" id="total"></div>
+
+<a href="./index.html">
+  <button onclick="placeOrder()">
+Place Order
+</button>
+</a>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhwjHPjfz6zMMkHNyqv46k-xLapc-LKCw",
+    authDomain: "simple-ecommerce-ea3fa.firebaseapp.com",
+    projectId: "simple-ecommerce-ea3fa",
+    storageBucket: "simple-ecommerce-ea3fa.firebasestorage.app",
+    messagingSenderId: "592418636844",
+    appId: "1:592418636844:web:2d07b376340ddfb0097d89"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let userId;
+let cart = [];
+let total = 0;
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
+
+userId = user.uid;
+
+const snap = await getDoc(doc(db,"carts",userId));
+
+cart = snap.exists() ? snap.data().items : [];
+
+render();
+
+});
+
+function render(){
+
+let box = document.getElementById("items");
+box.innerHTML = "";
+
+total = 0;
+
+cart.forEach(i=>{
+total += i.price * i.quantity;
+
+box.innerHTML += `
+<div class="item">
+${i.name} x ${i.quantity}
+</div>
+`;
+
+});
+
+document.getElementById("total").innerText = "Total: $" + total;
+
+}
+
+window.placeOrder = async function(){
+
+if(cart.length === 0){
+alert("Cart is empty");
+return;
+}
+
+await addDoc(collection(db,"orders"),{
+
+userId:userId,
+items:cart,
+total:total,
+status:"Pending",
+
+// ✅ FIXED DATE (NO UNDEFINED)
+date: new Date().toLocaleString()
+
+});
+
+// clear cart
+await setDoc(doc(db,"carts",userId),{
+items:[]
+});
+
+alert("Order placed successfully!");
+
+location.href="orders.html";
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Product</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+margin:0;
+background:#f4f6f9;
+}
+
+header{
+background:#007bff;
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+}
+
+.container{
+max-width:800px;
+margin:30px auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+img{
+width:100%;
+max-height:350px;
+object-fit:cover;
+border-radius:10px;
+}
+
+h2{
+margin-top:15px;
+}
+
+.price{
+font-size:24px;
+color:green;
+margin:10px 0;
+font-weight:bold;
+}
+
+button{
+width:100%;
+padding:15px;
+background:#28a745;
+color:white;
+border:none;
+font-size:18px;
+border-radius:8px;
+cursor:pointer;
+margin-top:15px;
+}
+
+.back{
+background:#007bff;
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Product Details
+</header>
+
+<div class="container">
+
+<img id="img">
+
+<h2 id="name"></h2>
+
+<p id="desc"></p>
+
+<div class="price" id="price"></div>
+
+<button onclick="addToCart()">
+Add To Cart
+</button>
+
+<button class="back" onclick="goBack()">
+Back To Shop
+</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhwjHPjfz6zMMkHNyqv46k-xLapc-LKCw",
+    authDomain: "simple-ecommerce-ea3fa.firebaseapp.com",
+    projectId: "simple-ecommerce-ea3fa",
+    storageBucket: "simple-ecommerce-ea3fa.firebasestorage.app",
+    messagingSenderId: "592418636844",
+    appId: "1:592418636844:web:2d07b376340ddfb0097d89"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let productId = new URLSearchParams(window.location.search).get("id");
+let product = null;
+let userId;
+
+// LOAD PRODUCT
+async function loadProduct(){
+
+const snap = await getDoc(doc(db,"products",productId));
+
+if(!snap.exists()){
+alert("Product not found");
+return;
+}
+
+product = snap.data();
+
+document.getElementById("name").innerText = product.name;
+document.getElementById("desc").innerText = product.description;
+document.getElementById("price").innerText = "$" + product.price;
+document.getElementById("img").src = product.image;
+
+}
+
+onAuthStateChanged(auth,(user)=>{
+if(user){
+userId = user.uid;
+}
+});
+
+window.addToCart = async function(){
+
+if(!userId){
+alert("Please login first");
+return;
+}
+
+const ref = doc(db,"carts",userId);
+const snap = await getDoc(ref);
+
+let cart = [];
+
+if(snap.exists()){
+cart = snap.data().items || [];
+}
+
+let exist = cart.find(i=>i.id===productId);
+
+if(exist){
+exist.quantity++;
+}else{
+cart.push({
+id:productId,
+...product,
+quantity:1
+});
+}
+
+await setDoc(ref,{items:cart});
+
+alert("Added to cart");
+
+}
+
+window.goBack = function(){
+location.href="index.html";
+}
+
+loadProduct();
+
+</script>
+
+</body>
+</html>

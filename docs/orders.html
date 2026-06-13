@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Orders</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f4f6f9;
+margin:0;
+}
+
+h2{
+text-align:center;
+margin-top:20px;
+}
+
+.container{
+max-width:600px;
+margin:20px auto;
+}
+
+.order{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+position:relative;
+}
+
+button{
+padding:8px 12px;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+.delete{
+background:red;
+color:white;
+position:absolute;
+right:10px;
+top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>My Orders</h2>
+
+<div class="container" id="box"></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhwjHPjfz6zMMkHNyqv46k-xLapc-LKCw",
+    authDomain: "simple-ecommerce-ea3fa.firebaseapp.com",
+    projectId: "simple-ecommerce-ea3fa",
+    storageBucket: "simple-ecommerce-ea3fa.firebasestorage.app",
+    messagingSenderId: "592418636844",
+    appId: "1:592418636844:web:2d07b376340ddfb0097d89"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let ordersData = [];
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
+
+// GET ORDERS WITH ID
+let q = query(
+collection(db,"orders"),
+where("userId","==",user.uid)
+);
+
+let snap = await getDocs(q);
+
+let box = document.getElementById("box");
+box.innerHTML = "";
+
+ordersData = [];
+
+snap.forEach(d=>{
+
+let data = d.data();
+
+ordersData.push({
+id: d.id,
+...data
+});
+
+box.innerHTML += `
+<div class="order">
+
+<button class="delete" onclick="deleteOrder('${d.id}')">
+Delete
+</button>
+
+<h3>Total: $${data.total}</h3>
+<p>Status: ${data.status}</p>
+<p>Date: ${data.date}</p>
+
+</div>
+`;
+
+});
+
+});
+
+// DELETE ORDER FUNCTION
+window.deleteOrder = async function(id){
+
+let confirmDelete = confirm("Delete this order?");
+
+if(!confirmDelete) return;
+
+await deleteDoc(doc(db,"orders",id));
+
+alert("Order deleted");
+
+// reload page
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cart</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f4f6f9;
+margin:0;
+}
+
+header{
+background:#007bff;
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+}
+
+.container{
+max-width:800px;
+margin:20px auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.item img{
+width:60px;
+height:60px;
+object-fit:cover;
+border-radius:6px;
+margin-right:10px;
+}
+
+.left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+button{
+padding:5px 10px;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+.add{
+background:green;
+color:white;
+}
+
+.remove{
+background:red;
+color:white;
+}
+
+.checkout{
+width:100%;
+padding:15px;
+margin-top:20px;
+background:#28a745;
+color:white;
+font-size:18px;
+border:none;
+cursor:pointer;
+border-radius:8px;
+}
+
+.total{
+text-align:right;
+font-size:20px;
+margin-top:15px;
+font-weight:bold;
+}
+
+.empty{
+text-align:center;
+color:gray;
+padding:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+My Cart
+</header>
+
+<div class="container">
+
+<div id="box"></div>
+
+<div class="total" id="total"></div>
+
+<button class="checkout" onclick="checkout()">
+Proceed to Checkout
+</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDhwjHPjfz6zMMkHNyqv46k-xLapc-LKCw",
+    authDomain: "simple-ecommerce-ea3fa.firebaseapp.com",
+    projectId: "simple-ecommerce-ea3fa",
+    storageBucket: "simple-ecommerce-ea3fa.firebasestorage.app",
+    messagingSenderId: "592418636844",
+    appId: "1:592418636844:web:2d07b376340ddfb0097d89"
+  };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let userId;
+let cart = [];
+
+// AUTH CHECK
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
+
+userId = user.uid;
+loadCart();
+
+});
+
+// LOAD CART FROM FIREBASE
+async function loadCart(){
+
+const snap = await getDoc(doc(db,"carts",userId));
+
+cart = snap.exists()?snap.data().items:[];
+
+render();
+
+}
+
+// DISPLAY CART ITEMS
+function render(){
+
+let box = document.getElementById("box");
+box.innerHTML = "";
+
+if(cart.length === 0){
+box.innerHTML = `<div class="empty">Your cart is empty</div>`;
+document.getElementById("total").innerText = "";
+return;
+}
+
+let total = 0;
+
+cart.forEach((item,index)=>{
+
+total += item.price * item.quantity;
+
+box.innerHTML += `
+<div class="item">
+
+<div class="left">
+<img src="${item.image}">
+<div>
+<h4>${item.name}</h4>
+<p>$${item.price}</p>
+</div>
+</div>
+
+<div>
+<button class="add" onclick="plus(${index})">+</button>
+${item.quantity}
+<button class="remove" onclick="minus(${index})">-</button>
+<button class="remove" onclick="removeItem(${index})">X</button>
+</div>
+
+</div>
+`;
+
+});
+
+document.getElementById("total").innerText = "Total: $" + total;
+
+}
+
+// INCREASE
+window.plus = async function(i){
+cart[i].quantity++;
+save();
+}
+
+// DECREASE
+window.minus = async function(i){
+if(cart[i].quantity > 1){
+cart[i].quantity--;
+save();
+}
+}
+
+// REMOVE ITEM
+window.removeItem = async function(i){
+cart.splice(i,1);
+save();
+}
+
+// SAVE CART TO FIREBASE
+async function save(){
+await setDoc(doc(db,"carts",userId),{items:cart});
+render();
+}
+
+// CHECKOUT
+window.checkout = function(){
+location.href="checkout.html";
+}
+
+</script>
+
+</body>
+</html>
