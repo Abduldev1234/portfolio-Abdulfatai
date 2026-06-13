@@ -23,6 +23,11 @@ justify-content:space-between;
 align-items:center;
 }
 
+.brand h2{margin:0;font-size:20px}
+.menu-toggle{display:none;background:none;border:none;color:white;font-size:24px}
+.nav{display:flex;gap:12px;align-items:center}
+.nav a{color:white;text-decoration:none}
+
 .container{
 padding:20px;
 }
@@ -88,15 +93,21 @@ text-decoration:none;
 <body>
 
 <header>
-<h2>ShopEase</h2>
-<div class="sign">
-  <a href="./signup.html">log out</a>
-</div>
-<a href=  "./carts.html">
-Cart (<span id="count">0</span>)
-</a>
-
+  <div class="brand"><h2>ShopEase</h2></div>
+  <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+  <nav class="nav">
+    <a href="./carts.html">Cart (<span id="count">0</span>)</a>
+    <a href="./signup.html">Log out</a>
+  </nav>
 </header>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.nav');
+  btn && btn.addEventListener('click',()=> nav.classList.toggle('active'));
+});
+</script>
 
 <div class="container">
 

@@ -17,9 +17,16 @@ header{
 background:#007bff;
 color:white;
 padding:15px;
-text-align:center;
-font-size:22px;
+display:flex;
+flex-wrap:wrap;
+justify-content:space-between;
+align-items:center;
 }
+
+.brand h2{margin:0;font-size:20px}
+.menu-toggle{display:none;background:none;border:none;color:white;font-size:24px}
+.nav{display:flex;gap:12px;align-items:center}
+.nav a{color:white;text-decoration:none}
 
 .container{
 max-width:800px;
@@ -71,8 +78,21 @@ margin-top:10px;
 <body>
 
 <header>
-Product Details
+  <div class="brand"><h2>ShopEase</h2></div>
+  <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+  <nav class="nav">
+    <a href="./carts.html">Cart</a>
+    <a href="./signup.html">Log out</a>
+  </nav>
 </header>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.nav');
+  btn && btn.addEventListener('click',()=> nav.classList.toggle('active'));
+});
+</script>
 
 <div class="container">
 
@@ -186,3 +206,11 @@ loadProduct();
 
 </body>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.nav');
+  btn && btn.addEventListener('click',()=> nav.classList.toggle('active'));
+});
+</script>

@@ -17,6 +17,21 @@ header{
 background:#007bff;
 color:white;
 padding:15px;
+display:flex;
+flex-wrap:wrap;
+justify-content:space-between;
+align-items:center;
+}
+
+.brand h2{margin:0;font-size:20px}
+.menu-toggle{display:none;background:none;border:none;color:white;font-size:24px}
+.nav{display:flex;gap:12px;align-items:center}
+.nav a{color:white;text-decoration:none}
+
+header{
+background:#007bff;
+color:white;
+padding:15px;
 text-align:center;
 font-size:22px;
 }
@@ -239,5 +254,25 @@ location.href="checkout.html";
 
 </script>
 
-</body>
-</html>
+<body>
+
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.nav');
+  btn && btn.addEventListener('click',()=> nav.classList.toggle('active'));
+});
+</script>
+<header>
+  <div class="brand"><h2>ShopEase</h2></div>
+  <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+  <nav class="nav">
+    <a href="./carts.html">Cart</a>
+    <a href="./signup.html">Log out</a>
+  </nav>
+</header>
+
+<div class="container">
+
+<h2>Your Cart</h2>
